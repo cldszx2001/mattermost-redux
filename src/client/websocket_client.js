@@ -12,6 +12,7 @@ class WebSocketClient {
         this.conn = null;
         this.connectionUrl = null;
         this.token = null;
+        this.auth = null;
         this.sequence = 1;
         this.connectFailCount = 0;
         this.eventCallback = null;
@@ -26,7 +27,7 @@ class WebSocketClient {
         this.platform = '';
     }
 
-    initialize(token, dispatch, getState, opts) {
+    initialize(token, dispatch, getState, opts, auth) {
         const defaults = {
             forceConnection: true,
             connectionUrl: this.connectionUrl,
@@ -94,9 +95,10 @@ class WebSocketClient {
                 return;
             }
 
-            this.conn = new Socket(connectionUrl, [], {headers: {origin}, ...(additionalOptions || {})});
+            this.conn = new Socket(connectionUrl, [], {headers: {origin, Authorization: 'Basic ' + auth}, ...(additionalOptions || {})});
             this.connectionUrl = connectionUrl;
             this.token = token;
+            this.auth = auth;
             this.dispatch = dispatch;
             this.getState = getState;
 
@@ -149,7 +151,7 @@ class WebSocketClient {
                         if (this.stop) {
                             return;
                         }
-                        this.initialize(token, dispatch, getState, Object.assign({}, opts, {forceConnection: true}));
+                        this.initialize(token, dispatch, getState, Object.assign({}, opts, {forceConnection: true}), auth);
                     },
                     retryTime
                 );
@@ -226,7 +228,7 @@ class WebSocketClient {
             this.conn.send(JSON.stringify(msg));
         } else if (!this.conn || this.conn.readyState === Socket.CLOSED) {
             this.conn = null;
-            this.initialize(this.token, this.dispatch, this.getState, {forceConnection: true, platform: this.platform});
+            this.initialize(this.token, this.dispatch, this.getState, {forceConnection: true, platform: this.platform}, this.auth);
         }
     }
 

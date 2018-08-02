@@ -5,6 +5,7 @@ import EventEmitter from 'utils/event_emitter';
 import {General} from 'constants';
 
 const FormData = require('form-data');
+const base64 = require('base-64');
 
 import fetch from './fetch_etag';
 import {isMinimumServerVersion} from 'src/utils/helpers';
@@ -12,6 +13,7 @@ import {isMinimumServerVersion} from 'src/utils/helpers';
 const HEADER_TOKEN = 'Token';
 const HEADER_AUTH = 'Authorization';
 const HEADER_BEARER = 'BEARER';
+const HEADER_BASIC = 'Basic';
 const HEADER_REQUESTED_WITH = 'X-Requested-With';
 const HEADER_USER_AGENT = 'User-Agent';
 const HEADER_X_VERSION_ID = 'X-Version-Id';
@@ -35,6 +37,7 @@ export default class Client4 {
         this.diagnosticId = '';
         this.includeCookies = true;
         this.online = true;
+        this.gateWayAuth = '';
 
         this.translations = {
             connectionError: 'There appears to be a problem with your internet connection.',
@@ -250,6 +253,15 @@ export default class Client4 {
         return `${this.getBaseRoute()}/schemes`;
     }
 
+    getAuth() {
+        return this.gateWayAuth;
+    }
+
+    setAuth(gateWayUserId, gateWayPassword) {
+        const text = gateWayUserId + ':' + gateWayPassword;
+        this.gateWayAuth = base64.encode(text);
+    }
+
     getOptions(options) {
         const newOptions = Object.assign({}, options);
 
@@ -258,7 +270,11 @@ export default class Client4 {
             ...this.defaultHeaders,
         };
 
-        if (this.token) {
+        if (this.token && this.gateWayAuth) {
+            headers[HEADER_AUTH] = `${HEADER_BASIC} ${this.gateWayAuth},${HEADER_BEARER} ${this.token}`;
+        } else if (this.gateWayAuth) {
+            headers[HEADER_AUTH] = `${HEADER_BASIC} ${this.gateWayAuth}`;
+        } else if (this.token) {
             headers[HEADER_AUTH] = `${HEADER_BEARER} ${this.token}`;
         }
 
