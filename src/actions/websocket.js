@@ -96,7 +96,7 @@ export function init(platform, siteUrl, token, optionalWebSocket, additionalOpti
             websocketOpts.webSocketConnector = optionalWebSocket;
         }
 
-        return websocketClient.initialize(authToken, dispatch, getState, websocketOpts);
+        return websocketClient.initialize(authToken, dispatch, getState, websocketOpts, Client4.getAuth());
     };
 }
 
