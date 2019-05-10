@@ -40,18 +40,35 @@ function currentChannelId(state = '', action) {
 function channels(state = {}, action) {
     switch (action.type) {
     case ChannelTypes.RECEIVED_CHANNEL:
+        if (state[action.data.id] && action.data.type === General.DM_CHANNEL) {
+            action.data.display_name = action.data.display_name || state[action.data.id].display_name;
+        }
         return {
             ...state,
             [action.data.id]: action.data,
         };
-
     case ChannelTypes.RECEIVED_CHANNELS:
+    case ChannelTypes.RECEIVED_ALL_CHANNELS:
     case SchemeTypes.RECEIVED_SCHEME_CHANNELS: {
         const nextState = {...state};
         for (const channel of action.data) {
+            if (state[channel.id] && channel.type === General.DM_CHANNEL) {
+                channel.display_name = channel.display_name || state[channel.id].display_name;
+            }
             nextState[channel.id] = channel;
         }
         return nextState;
+    }
+    case ChannelTypes.RECEIVED_CHANNEL_DELETED: {
+        const {id, deleteAt} = action.data;
+        const newState = {
+            ...state,
+            [id]: {
+                ...state[id],
+                delete_at: deleteAt,
+            },
+        };
+        return newState;
     }
     case ChannelTypes.UPDATE_CHANNEL_HEADER: {
         const {channelId, header} = action.data;
@@ -128,8 +145,6 @@ function channelsInTeam(state = {}, action) {
     case ChannelTypes.RECEIVED_CHANNELS: {
         return channelListToSet(state, action);
     }
-    case ChannelTypes.RECEIVED_CHANNEL_DELETED:
-        return removeChannelFromSet(state, action);
     case ChannelTypes.LEAVE_CHANNEL: {
         if (action.data && action.data.type === General.PRIVATE_CHANNEL) {
             return removeChannelFromSet(state, action);
@@ -263,8 +278,7 @@ function myMembers(state = {}, action) {
             [action.data.channel_id]: member,
         };
     }
-    case ChannelTypes.LEAVE_CHANNEL:
-    case ChannelTypes.RECEIVED_CHANNEL_DELETED: {
+    case ChannelTypes.LEAVE_CHANNEL: {
         const nextState = {...state};
         if (action.data) {
             Reflect.deleteProperty(nextState, action.data.id);

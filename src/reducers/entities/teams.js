@@ -27,6 +27,7 @@ function teams(state = {}, action) {
 
     case TeamTypes.CREATED_TEAM:
     case TeamTypes.UPDATED_TEAM:
+    case TeamTypes.PATCHED_TEAM:
     case TeamTypes.RECEIVED_TEAM:
         return {
             ...state,
@@ -158,7 +159,7 @@ function myMembers(state = {}, action) {
             ...state,
             [teamId]: {
                 ...member,
-                msg_count: Math.max(member.msg_count - amount, 0),
+                msg_count: Math.max(member.msg_count - Math.abs(amount), 0),
             },
         };
     }

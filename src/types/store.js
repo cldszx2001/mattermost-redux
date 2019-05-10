@@ -16,6 +16,7 @@ import type {FilesState} from './files';
 import type {EmojisState} from './emojis';
 import type {SchemesState} from './schemes';
 import type {Typing} from './typing';
+import type {GroupsState} from './groups';
 import type {
     ChannelsRequestsStatuses,
     GeneralRequestsStatuses,
@@ -24,13 +25,16 @@ import type {
     UsersRequestsStatuses,
     PreferencesRequestsStatuses,
     AdminRequestsStatuses,
-    EmojisRequestsStatuses,
     FilesRequestsStatuses,
     IntegrationsRequestsStatuses,
     RolesRequestsStatuses,
     SchemesRequestsStatuses,
+    GroupsRequestsStatuses,
+    JobsRequestsStatuses,
+    SearchRequestsStatuses,
 } from './requests';
 import type {Role} from './roles';
+import type {PreferenceType} from './preferences';
 
 export type GlobalState = {|
     entities: {|
@@ -40,7 +44,7 @@ export type GlobalState = {|
         channels: ChannelsState,
         posts: PostsState,
         preferences: {|
-            myPreferences: Object
+            myPreferences: {[string]: PreferenceType}
         |},
         admin: AdminState,
         jobs: JobsState,
@@ -59,6 +63,7 @@ export type GlobalState = {|
         },
         schemes: SchemesState,
         gifs: Object,
+        groups: GroupsState,
     |},
     errors: Array<Object>,
     requests: {|
@@ -69,10 +74,13 @@ export type GlobalState = {|
         users: UsersRequestsStatuses,
         preferences: PreferencesRequestsStatuses,
         admin: AdminRequestsStatuses,
-        emojis: EmojisRequestsStatuses,
         files: FilesRequestsStatuses,
         integrations: IntegrationsRequestsStatuses,
         roles: RolesRequestsStatuses,
-        schemes: SchemesRequestsStatuses
+        schemes: SchemesRequestsStatuses,
+        groups: GroupsRequestsStatuses,
+        jobs: JobsRequestsStatuses,
+        schemes: SchemesRequestsStatuses,
+        search: SearchRequestsStatuses,
     |}
 |};
